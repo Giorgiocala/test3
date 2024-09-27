@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
+	<file:config name="File_Config" doc:name="File Config" doc:id="e353587b-e173-43cc-9a15-e12ca4415ce0" >
+		<file:connection workingDir="C:\Users\GiorgioCalarco\OneDrive - Lobra S.r.l\Desktop\Cartelle e file\Mulesoft\Progetto Riccardo" />
+	</file:config>
+	<flow name="testriccardoFlow" doc:id="a11b02db-b57a-4ece-82f1-cdfdab500225" >
+		<scheduler doc:name="Scheduler" doc:id="d69eb15d-dd1d-4ead-90a9-a8ce1f151ad3" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="300"/>
+			</scheduling-strategy>
+		</scheduler>
+		<file:read doc:name="Read" doc:id="4c316107-8d60-4d82-8424-19eef5c9fcf1" path="C:\Users\GiorgioCalarco\OneDrive - Lobra S.r.l\Desktop\Cartelle e file\Mulesoft\Progetto Riccardo\clienti.txt" config-ref="File_Config" target="readfile" outputMimeType="application/json"/>
+		<ee:transform doc:name="Transform Message" doc:id="900b2240-af95-4344-88b3-4a7da294d085" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="test" ><![CDATA[%dw 2.0
+output application/json
+---
+
+    inputs: vars.readfile.Data map (item, index) ->{
+        inputAccount: {
+            "MagentoID__c": item.MagentoID__c,
+            "StoredenID__c": item.StoredenID__c,
+            "PersonEmail": item.PersonEmail,
+            "FirstName": item.FirstName,
+            "LastName": item.LastName,
+            "PersonBirthdate": item.PersonBirthdate,
+            Sesso__c: if(item.Sesso__c=="1") "Male" 
+                      else if (item.Sesso__c=="2") "Female"
+                    else null,
+            ("PersonMobilePhone": item.PersonMobilePhone) if(!isEmpty(item.PersonMobilePhone)),
+            "Phone": item.Phone,
+            "Numero_Tessera__c": item.Numero_Tessera__c,
+            "Professione__c": item.Professione__c,
+            "Interessi__c": item.Interessi__c,
+            "BillingpostalCode": item.BillingAddress.postalCode,
+            "Billingcity": item.BillingAddress.city,
+            "Billingstate": item.BillingAddress.state,
+            "Billingcountry": item.BillingAddress.country,
+            "Billingstreet": item.BillingAddress.street,
+            "Marketing_diretto__c": item.Marketing_diretto__c,
+            "Marketing_profilato__c": item.Marketing_profilato__c,
+            "Marketing_integrato__c": item.Marketing_integrato__c,
+            "Fidelity__c": item.Fidelity__c
+            
+
+
+        }
+    }
+    
+ ]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<foreach doc:name="For Each" doc:id="e0dbfea4-b72b-4b38-86b2-17318962b01a" collection="#[vars.test.inputs]">
+			<file:write doc:name="Write" doc:id="b804d41c-a1db-44d3-8270-722d81c4cd8e" config-ref="File_Config" path='#["C:\Users\GiorgioCalarco\OneDrive - Lobra S.r.l\Desktop\Cartelle e file\Mulesoft\Progetto Riccardo/restituzione clienti" ++ vars.counter ++ ".txt"]' createParentDirectories="false" mode="CREATE_NEW" />
+		</foreach>
+		<logger level="INFO" doc:name="Logger" doc:id="8d69e8b5-06ce-4ef9-8917-09c51917bde9" message="#[payload]" />
+	</flow>
+</mule>
