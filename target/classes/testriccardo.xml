@@ -61,6 +61,6 @@ output application/json
 		<foreach doc:name="For Each" doc:id="e0dbfea4-b72b-4b38-86b2-17318962b01a" collection="#[vars.test.inputs]">
 			<file:write doc:name="Write" doc:id="b804d41c-a1db-44d3-8270-722d81c4cd8e" config-ref="File_Config" path='#["C:\Users\GiorgioCalarco\OneDrive - Lobra S.r.l\Desktop\Cartelle e file\Mulesoft\Progetto Riccardo/restituzione clienti" ++ vars.counter ++ ".txt"]' createParentDirectories="false" mode="CREATE_NEW" />
 		</foreach>
-		<logger level="INFO" doc:name="Logger" doc:id="8d69e8b5-06ce-4ef9-8917-09c51917bde9" message="test" />
+		<logger level="INFO" doc:name="Logger" doc:id="8d69e8b5-06ce-4ef9-8917-09c51917bde9" message="test2" />
 	</flow>
 </mule>
